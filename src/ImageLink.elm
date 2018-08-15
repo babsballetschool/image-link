@@ -11,7 +11,8 @@ main =
 -- Model
 
 
-type alias Image =
-    { source : String
-    , description : Maybe String
-    }
+type Image
+    = Image
+        { source : String
+        , description : Maybe String
+        }

@@ -58,12 +58,16 @@ view model =
 link : Image -> Html.Html msg
 link (Image { source, description }) =
     let
-        formatter =
-            s "![" <> string <> s "](" <> string <> s ")"
-
         alt = Maybe.withDefault "" description
 
-        text = print formatter alt source
+        text = linkFormatter alt source
     in
         Html.pre [] [Html.text text]
 
+
+linkFormatter : String -> String -> String
+linkFormatter =
+    let
+        format = s "![" <> string <> s "](" <> string <> s ")"
+    in
+        print format

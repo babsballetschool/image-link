@@ -59,8 +59,11 @@ link : Image -> Html.Html msg
 link (Image { source, description }) =
     let
         formatter =
-            s "![](" <> string <> s ")"
+            s "![" <> string <> s "](" <> string <> s ")"
 
-        text = print formatter source
+        alt = Maybe.withDefault "" description
+
+        text = print formatter alt source
     in
         Html.pre [] [Html.text text]
+

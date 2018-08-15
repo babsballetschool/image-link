@@ -16,3 +16,11 @@ type Image
         { source : String
         , description : Maybe String
         }
+
+createImage : String -> Image
+createImage source =
+    Image { source = source, description = Nothing }
+
+withDescription : String -> Image -> Image
+withDescription description (Image image) =
+    Image { image | description = Just description }

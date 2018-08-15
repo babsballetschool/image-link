@@ -3,6 +3,7 @@ module ImageLink exposing (..)
 import Html
 import Formatting exposing (..)
 
+
 main =
     let
         image =
@@ -42,6 +43,37 @@ withDescription description (Image image) =
 
 
 
+-- Update
+
+
+type Message
+    = UpdateImage String
+    | UpdateDescription String
+
+
+update : Message -> Model -> ( Model, Cmd msg )
+update message model =
+    let
+        nextModel =
+            case message of
+                UpdateImage source ->
+                    let
+                        image =
+                            createImage source
+                    in
+                        { image = Just image }
+
+                UpdateDescription description ->
+                    let
+                        nextImage =
+                            Maybe.map (\model -> model |> withDescription description) model.image
+                    in
+                        { image = nextImage }
+    in
+        ( nextModel, Cmd.none )
+
+
+
 -- View
 
 
@@ -49,7 +81,7 @@ view : Model -> Html.Html msg
 view model =
     case model.image of
         Just image ->
-           link image
+            link image
 
         Nothing ->
             Html.text "select an image"
@@ -58,16 +90,19 @@ view model =
 link : Image -> Html.Html msg
 link (Image { source, description }) =
     let
-        alt = Maybe.withDefault "" description
+        alt =
+            Maybe.withDefault "" description
 
-        text = linkFormatter alt source
+        text =
+            linkFormatter alt source
     in
-        Html.pre [] [Html.text text]
+        Html.pre [] [ Html.text text ]
 
 
 linkFormatter : String -> String -> String
 linkFormatter =
     let
-        format = s "![" <> string <> s "](" <> string <> s ")"
+        format =
+            s "![" <> string <> s "](" <> string <> s ")"
     in
         print format

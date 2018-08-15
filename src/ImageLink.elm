@@ -1,7 +1,7 @@
 module ImageLink exposing (..)
 
 import Html
-
+import Formatting exposing (..)
 
 main =
     let
@@ -58,6 +58,9 @@ view model =
 link : Image -> Html.Html msg
 link (Image { source, description }) =
     let
-        text = "![](" ++ source ++ ")"
+        formatter =
+            s "![](" <> string <> s ")"
+
+        text = print formatter source
     in
         Html.pre [] [Html.text text]

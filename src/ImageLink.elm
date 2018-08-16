@@ -1,9 +1,12 @@
 module ImageLink exposing (..)
 
-import Html
+import Html exposing (program)
+import Html.Attributes as Attribute
+import Html.Events as Event
 import Formatting exposing (..)
 
 
+main : Program Never Model Message
 main =
     let
         image =
@@ -13,7 +16,12 @@ main =
         model =
             { image = Just image }
     in
-        view model
+        program
+            { init = ( model, Cmd.none )
+            , view = view
+            , update = update
+            , subscriptions = \_ -> Sub.none
+            }
 
 
 
@@ -77,14 +85,38 @@ update message model =
 -- View
 
 
-view : Model -> Html.Html msg
+view : Model -> Html.Html Message
 view model =
-    case model.image of
+    let
+        toAlt : Image -> String
+        toAlt (Image {source, description}) =
+            description
+                |> Maybe.withDefault ""
+
+        alt =
+            model.image
+                |> Maybe.map toAlt
+                |> Maybe.withDefault ""
+    in
+        Html.div []
+            [ (image model.image)
+            , Html.label [] [ Html.text "alt:" ]
+            , Html.input
+                [ Event.onInput UpdateDescription
+                      , Attribute.value alt
+                ]
+                []
+            ]
+
+
+image : Maybe Image -> Html.Html msg
+image image =
+    case image of
         Just image ->
             link image
 
         Nothing ->
-            Html.text "select an image"
+            default "select an image"
 
 
 link : Image -> Html.Html msg
@@ -97,6 +129,11 @@ link (Image { source, description }) =
             linkFormatter alt source
     in
         Html.pre [] [ Html.text text ]
+
+
+default : String -> Html.Html msg
+default defaultText =
+    Html.pre [] [ Html.text defaultText ]
 
 
 linkFormatter : String -> String -> String

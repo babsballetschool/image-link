@@ -3,7 +3,9 @@ module ImageLink exposing (..)
 import Html exposing (program)
 import Html.Attributes as Attribute
 import Html.Events as Event
+import Json.Decode as Decode
 import Formatting exposing (..)
+import ImageDirectory as Dir
 
 
 main : Program Never Model Message
@@ -88,8 +90,27 @@ update message model =
 view : Model -> Html.Html Message
 view model =
     let
+        entry : Result String Dir.Entry
+        entry =
+            Decode.decodeString Dir.decoder """{
+  "type": "directory",
+  "contents": [
+    { "type": "file", "location":"http://via.placeholder.com/20x20"},
+    { "type": "file", "location":"http://via.placeholder.com/20x30"},
+    { "type": "directory", "contents": [{ "type": "file", "location":"http://via.placeholder.com/30x20"}] }
+  ]
+}"""
+
+        entryView =
+            case entry of
+                Ok actual_entry ->
+                    Dir.view UpdateImage actual_entry
+
+                Err _ ->
+                    Html.span [] [ Html.text "could not load directory" ]
+
         toAlt : Image -> String
-        toAlt (Image {source, description}) =
+        toAlt (Image { source, description }) =
             description
                 |> Maybe.withDefault ""
 
@@ -99,11 +120,12 @@ view model =
                 |> Maybe.withDefault ""
     in
         Html.div []
-            [ (image model.image)
+            [ entryView
+            , (image model.image)
             , Html.label [] [ Html.text "alt:" ]
             , Html.input
                 [ Event.onInput UpdateDescription
-                      , Attribute.value alt
+                , Attribute.value alt
                 ]
                 []
             ]
